@@ -43,8 +43,10 @@ namespace SpaceGame.DAL
 
         public async Task<IEnumerable<User>> Get(DateTime periodAccessing)
         {
-            List<ScanCondition> conditions = new List<ScanCondition>();
-            conditions.Add(new ScanCondition(nameof(User.AccessTime), ScanOperator.GreaterThanOrEqual, periodAccessing));
+            List<ScanCondition> conditions = new()
+            {
+                new ScanCondition(nameof(User.AccessTime), ScanOperator.GreaterThanOrEqual, periodAccessing)
+            };
             var result = _context.ScanAsync<User>(conditions);
             IEnumerable<User> users = await result.GetRemainingAsync();
 
@@ -53,7 +55,7 @@ namespace SpaceGame.DAL
 
         public async Task Update(User user)
         {
-            var doc = _context.ToDocument<User>(user);
+            var doc = _context.ToDocument(user);
             await _userTable.UpdateItemAsync(doc);
         }
 
@@ -72,9 +74,10 @@ namespace SpaceGame.DAL
             await _userTable.PutItemAsync(userDoc,requestConfig);
         }
 
-        // Home work
         public async Task Delete(User user)
         {
+            var userDoc = _context.ToDocument(user);
+            await _userTable.DeleteItemAsync(userDoc);
         }
     }
 }

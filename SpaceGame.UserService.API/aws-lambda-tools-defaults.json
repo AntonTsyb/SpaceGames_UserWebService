@@ -6,12 +6,12 @@
         "dotnet lambda help",
         "All the command line options for the Lambda command can be specified in this file."
     ],
-    "profile"     : "default",
-    "region"      : "",
+    "profile"     : "Admin",
+    "region"      : "eu-west-3",
     "configuration" : "Development",
     "s3-prefix"     : "SpaceGame.UserService.API/",
     "template"      : "serverless.template",
     "template-parameters" : "",
-    "s3-bucket"           : "",
-    "stack-name"          : ""
+    "s3-bucket"           : "parisbucketepam",
+    "stack-name"          : "DemoParisLambda"
 }

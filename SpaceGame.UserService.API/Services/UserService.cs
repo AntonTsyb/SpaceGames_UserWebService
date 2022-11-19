@@ -102,7 +102,7 @@ namespace SpaceGames.UserService.Api.Services
             await _userRepository.Update(user);
         }
 
-        private async Task<User> GetUser(string email, bool throwException = false)
+        private async Task<User?> GetUser(string email, bool throwException = false)
         {
             var user = await _userRepository.GetById(email);
             if(user == null && throwException)
@@ -113,7 +113,8 @@ namespace SpaceGames.UserService.Api.Services
         // Home work
         public async Task DeleteUser(string email)
         {
-            // adding logic for delete
+            var user = await GetUser(email, true);
+            await _userRepository.Delete(user);
         }
     }
 }

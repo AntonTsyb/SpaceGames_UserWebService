@@ -11,12 +11,16 @@ namespace SpaceGames.UserService.Api.Controllers
     {
         IUserService _userService;
         private readonly CognitoUserManager<CognitoUser> _userManager;
+        private readonly CognitoUserPool _userPool;
 
 
-        public UsersController(IUserService userService, UserManager<CognitoUser> userManager)
+        public UsersController(IUserService userService,
+            UserManager<CognitoUser> userManager,
+            CognitoUserPool userPool)
         {
             _userService = userService;
             _userManager = (CognitoUserManager<CognitoUser>)userManager;
+            _userPool = userPool;
         }
 
         [HttpGet]
@@ -34,7 +38,7 @@ namespace SpaceGames.UserService.Api.Controllers
         }
 
         [HttpPut("{email}")]
-        public async Task<IActionResult> EditUser([FromRoute]string email, [FromBody] UserProfileRequestModel model)
+        public async Task<IActionResult> EditUser([FromRoute] string email, [FromBody] UserProfileRequestModel model)
         {
             CognitoIdentityHelper.TryGetEmailFromClaim(base.User, out string emailFromToken);
             if (email != emailFromToken)
@@ -48,10 +52,10 @@ namespace SpaceGames.UserService.Api.Controllers
         }
 
         [HttpPost("{email}/avatar")]
-        public async Task<IActionResult> UploadAvatar([FromRoute]string email, UserAvatarRequestModel file)
+        public async Task<IActionResult> UploadAvatar([FromRoute] string email, UserAvatarRequestModel file)
         {
             CognitoIdentityHelper.TryGetEmailFromClaim(base.User, out string emailFromToken);
-            if(email != emailFromToken)
+            if (email != emailFromToken)
             {
                 return Forbid();
             }
@@ -61,12 +65,19 @@ namespace SpaceGames.UserService.Api.Controllers
             return Ok();
         }
 
-        // Home work
         [HttpDelete("{email}")]
-        public async Task<IActionResult> DeleteUser([FromRoute]string email)
+        public async Task<IActionResult> DeleteUser([FromRoute] string email)
         {
-            // delete from DynamoDB calling _userService
-            // delete from Cognito using CognitoUserManager
+            CognitoIdentityHelper.TryGetEmailFromClaim(base.User, out string emailFromToken);
+            if (email != emailFromToken)
+            {
+                return Forbid();
+            }
+            await _userService.DeleteUser(email);
+
+            var cognitoUser = _userPool.GetUser(email);
+            if (cognitoUser != null)
+                await _userManager.DeleteAsync(cognitoUser);
 
             return Ok();
         }
