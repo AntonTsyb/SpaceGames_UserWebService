@@ -4,11 +4,11 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "BucketName": "",
-        "UserPoolClientId": "",
-        "UserPoolClientSecret": "",
-        "UserPoolId": "",
-        "Region": "",
+        "BucketName": "parisbucketepam",
+        "UserPoolClientId": "2aqd59kub2l8q09u9n7a4qe9l9",
+        "UserPoolClientSecret": "vs70k6qde7pbhpkv8uvd5qv9l9tuvfjf040ounh977a1muc2jfh",
+        "UserPoolId": "eu-west-3_SY1RBf5vv",
+        "Region": "eu-west-3",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:44389;http://localhost:59270"

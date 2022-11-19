@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using Amazon.DynamoDBv2.DocumentModel;
 using AmazonExpression = Amazon.DynamoDBv2.DocumentModel.Expression;
+using System.Linq;
 
 namespace SpaceGame.DAL
 {
@@ -35,10 +36,17 @@ namespace SpaceGame.DAL
             return _context.FromDocument<User>(user);
         }
 
-        // Home work NickName
         public async Task<User> GetByNickName(string nickName)
         {
-            return new User();// delete this row and add logic to scan by nickname
+            List<ScanCondition> conditions = new()
+            {
+                new ScanCondition(nameof(User.NickName), ScanOperator.Equal)
+            };
+
+            var result = _context.ScanAsync<User>(conditions);
+            var users = await result.GetRemainingAsync();
+
+            return users.FirstOrDefault();
         }
 
         public async Task<IEnumerable<User>> Get(DateTime periodAccessing)

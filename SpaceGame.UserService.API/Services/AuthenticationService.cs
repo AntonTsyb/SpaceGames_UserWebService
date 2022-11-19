@@ -37,10 +37,10 @@ namespace SpaceGames.UserService.Api.Services
             _repository = repository;
         }
 
-        // Home work NickName
         public async Task RegisterUser(SignUpRequestModel signUpModel)
         {
-           // HW verify signUpModel.NickName is unique
+            // check if nickname is unique
+            await CheckNickNameAvailability(signUpModel.NickName);
 
             var attributes = new Dictionary<string, string>
             {
@@ -121,6 +121,13 @@ namespace SpaceGames.UserService.Api.Services
             }
 
             return principal;
+        }
+
+        private async Task CheckNickNameAvailability(string nickName)
+        {
+            var existingUser = await _repository.GetByNickName(nickName);
+            if(existingUser != null)
+                throw new ApiException($"User already exists with the nickname", ExceptionType.OperationException);
         }
     }
 }

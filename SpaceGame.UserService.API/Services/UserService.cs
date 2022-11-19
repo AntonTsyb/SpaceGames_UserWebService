@@ -31,8 +31,6 @@ namespace SpaceGames.UserService.Api.Services
             _tokenAccessTime = Convert.ToInt32(config[ConfigurationConstants.AwsAuthenticationTokenExpiration]);
         }
 
-        // Home work NickName
-        // verify nick name is unique.
         public async Task AddUser(string email, UserProfileRequestModel userModel)
         {
             var user = new User
@@ -40,6 +38,7 @@ namespace SpaceGames.UserService.Api.Services
                 Email = email,
                 NickName = string.IsNullOrEmpty(userModel.NickName) ? email : userModel.NickName
             };
+            await CheckNickNameAvailability(user.Email, user.NickName);
             try
             { 
                 await _userRepository.PutItem(user);
@@ -50,14 +49,13 @@ namespace SpaceGames.UserService.Api.Services
             }
         }
 
-        // Home work NickName verify nick name is unique. 
         public async Task UpdateUser(string email, UserProfileRequestModel userModel)
         {
+            await CheckNickNameAvailability(email, userModel.NickName);
+
             var user = await GetUser(email);
             user.NickName = userModel.NickName;
             await _userRepository.Update(user);
-
-            //throw new ApiException($"Nick is not available", ExceptionType.OperationException);
         }
 
         public async Task UpdateUser(string email, UserAvatarRequestModel userModel)
@@ -102,6 +100,12 @@ namespace SpaceGames.UserService.Api.Services
             await _userRepository.Update(user);
         }
 
+        public async Task DeleteUser(string email)
+        {
+            var user = await GetUser(email, true);
+            await _userRepository.Delete(user);
+        }
+
         private async Task<User?> GetUser(string email, bool throwException = false)
         {
             var user = await _userRepository.GetById(email);
@@ -110,11 +114,11 @@ namespace SpaceGames.UserService.Api.Services
             return user;
         }
 
-        // Home work
-        public async Task DeleteUser(string email)
+        private async Task CheckNickNameAvailability(string email, string nickName)
         {
-            var user = await GetUser(email, true);
-            await _userRepository.Delete(user);
+            var existingUser = await _userRepository.GetByNickName(nickName);
+            if (existingUser != null && existingUser.Email != email)
+                throw new ApiException($"User already exists with the nickname", ExceptionType.OperationException);
         }
     }
 }
